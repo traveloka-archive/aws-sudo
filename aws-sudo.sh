@@ -77,7 +77,7 @@ fi
 
 # if no source profile was provided, try to find a default
 if [ -z "$profile" ]; then
-    profile=$(grep "^default profile" $cfg_file | awk '{print $3}' 2> /dev/null)
+    profile=$(grep "^default profile" $cfg_file 2> /dev/null | awk '{print $3}')
 fi
 
 # verify that a valid role arn was found or provided; awscli gives
