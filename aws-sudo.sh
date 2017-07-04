@@ -34,6 +34,15 @@ else
     fi
 fi
 
+# if argument is an aws account number, look for a default role name
+# in the config.  If found, build the role arn using that default
+if [[ -z "$role" && "$argument" =~ ^[0-9]{12}$ ]]; then
+       def_role_name=$(grep "^default role " $cfg_file | awk '{print $3}')
+       if [ -n "$def_role_name" ]; then
+           role="arn:aws:iam::${argument}:role/${def_role_name}"
+       fi
+fi
+
 # verify that a valid role arn was found or provided; awscli gives
 # terrible error messages if you try to assume some non-arn junk
 if ! [[ "$role" =~ arn:aws:iam::[0-9]{12}:role/ ]]; then
