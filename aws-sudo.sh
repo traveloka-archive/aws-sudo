@@ -2,8 +2,10 @@
 
 set -e
 
+# setup default values
 cfg_file="$HOME/.aws-sudo"
 
+# parse command line
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -n) session_name="$2"; shift 2;;
@@ -11,10 +13,34 @@ while [ "$#" -gt 0 ]; do
         -x) clear=1; shift 1;;
         -f) cfg_file="$2"; shift 2;;
         -p) profile="$2"; shift 2;;
+        -h)
+            cat 1>&2 <<EOF
+$(basename "$0") [-n sess_name] [-c command] [-x] [-f cfg_file] [-p profile] argument
+
+Request credentials via STS and prepare environment variables for the
+AWS SDKs.  By default, generates Bourne-shell code to be eval'ed.
+
+optional args:
+  -n sess_name	Session name for STS
+  -c command	Run a command as the role; passed to "sh -c"
+  -x		Generate command to clean modified environment vars
+  -f cfg_file	Override config file for defaults and aliases
+  -p profile	Use a non-default AWS profile when calling STS
+
+positional args:
+  argument:	Must be one of:
+			full role ARN
+			a configured alias name
+			12-digit AWS account number
+			the literal "clear" (equivalent to -x)
+EOF
+            exit
+        ;;
         *) argument=$1; shift 1;;
     esac
 done
 
+# handle unset requests and exit
 if [[ "$argument" = "clear" || "$clear" = "1" ]]
 then
 	echo "unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SECURITY_TOKEN AWS_SESSION_TOKEN"
