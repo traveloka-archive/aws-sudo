@@ -2,8 +2,11 @@
 
 set -e
 
+session_name=aws_sudo
+
 while [ "$#" -gt 0 ]; do
     case "$1" in
+        -n) session_name="$2"; shift 2;;
         -x) clear=1; shift 1;;
         *) ROLE_TO_ASSUME=$1; shift 1;;
     esac
@@ -17,7 +20,7 @@ fi
 
 response=$(aws sts assume-role --output text \
                --role-arn "$ROLE_TO_ASSUME" \
-               --role-session-name="aws_sudo" \
+               --role-session-name="$session_name" \
                --query Credentials)
 
 echo export \
