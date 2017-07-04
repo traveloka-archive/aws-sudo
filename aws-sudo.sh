@@ -52,7 +52,7 @@ if [[ "$argument" =~ arn:aws:iam::[0-9]{12}:role/ ]]; then
     role="$argument"
 else
     if [ -r $cfg_file ]; then
-        alias=$(grep "^alias $argument" $cfg_file | head -n 1)
+        alias=$(grep "^alias $argument" $cfg_file 2> /dev/null | head -n 1)
         role=$(echo "$alias" | awk '{print $3}')
 
         # if no session name was specified, look for one in the alias
@@ -63,7 +63,7 @@ fi
 # if argument is an aws account number, look for a default role name
 # in the config.  If found, build the role arn using that default
 if [[ -z "$role" && "$argument" =~ ^[0-9]{12}$ ]]; then
-       def_role_name=$(grep "^default role " $cfg_file | awk '{print $3}')
+       def_role_name=$(grep "^default role " $cfg_file 2> /dev/null | awk '{print $3}' | head -n 1)
        if [ -n "$def_role_name" ]; then
            role="arn:aws:iam::${argument}:role/${def_role_name}"
        fi
@@ -71,13 +71,13 @@ fi
 
 # if no session name was provided, try to find a default
 if [ -z "$session_name" ]; then
-    def_session_name=$(grep "^default session_name" $cfg_file | awk '{print $3}')
+    def_session_name=$(grep "^default session_name" $cfg_file 2> /dev/null | awk '{print $3}')
     session_name=${def_session_name:-aws_sudo}
 fi
 
 # if no source profile was provided, try to find a default
 if [ -z "$profile" ]; then
-    profile=$(grep "^default profile" $cfg_file | awk '{print $3}')
+    profile=$(grep "^default profile" $cfg_file | awk '{print $3}' 2> /dev/null)
 fi
 
 # verify that a valid role arn was found or provided; awscli gives
