@@ -1,5 +1,6 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash
 
+set -e
 ROLE_TO_ASSUME=$1
 
 if [ "$ROLE_TO_ASSUME" == "clear" ]
