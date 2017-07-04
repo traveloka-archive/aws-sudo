@@ -9,18 +9,18 @@ while [ "$#" -gt 0 ]; do
         -n) session_name="$2"; shift 2;;
         -c) command="$2"; shift 2;;
         -x) clear=1; shift 1;;
-        *) ROLE_TO_ASSUME=$1; shift 1;;
+        *) argument=$1; shift 1;;
     esac
 done
 
-if [ "$ROLE_TO_ASSUME" = "clear" -o "$clear" = "1" ]
+if [ "$argument" = "clear" -o "$clear" = "1" ]
 then
 	echo "unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SECURITY_TOKEN AWS_SESSION_TOKEN"
 	exit
 fi
 
 response=$(aws sts assume-role --output text \
-               --role-arn "$ROLE_TO_ASSUME" \
+               --role-arn "$argument" \
                --role-session-name="$session_name" \
                --query Credentials)
 
