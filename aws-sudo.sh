@@ -2,6 +2,7 @@
 
 set -e
 
+cfg_file="$HOME/.aws-sudo"
 session_name=aws_sudo
 
 while [ "$#" -gt 0 ]; do
@@ -9,6 +10,7 @@ while [ "$#" -gt 0 ]; do
         -n) session_name="$2"; shift 2;;
         -c) command="$2"; shift 2;;
         -x) clear=1; shift 1;;
+        -f) cfg_file="$2"; shift 2;;
         *) argument=$1; shift 1;;
     esac
 done
@@ -19,8 +21,28 @@ then
 	exit
 fi
 
+# if the arg doesn't look like an arn, check for aliases
+if [[ "$argument" =~ arn:aws:iam::[0-9]{12}:role/ ]]; then
+    role="$argument"
+else
+    if [ -r $cfg_file ]; then
+        alias=$(grep "^alias $argument" $cfg_file | head -n 1)
+        role=$(echo "$alias" | awk '{print $3}')
+
+        # if no session name was specified, look for one in the alias
+        session_name=${session_name:-$(echo "$alias" | awk '{print $4}')}
+    fi
+fi
+
+# verify that a valid role arn was found or provided; awscli gives
+# terrible error messages if you try to assume some non-arn junk
+if ! [[ "$role" =~ arn:aws:iam::[0-9]{12}:role/ ]]; then
+    echo "$argument is neither a role ARN nor a configured alias" 1>&2
+    exit 1
+fi
+
 response=$(aws sts assume-role --output text \
-               --role-arn "$argument" \
+               --role-arn "$role" \
                --role-session-name="$session_name" \
                --query Credentials)
 
