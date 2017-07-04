@@ -10,6 +10,7 @@ while [ "$#" -gt 0 ]; do
         -c) command="$2"; shift 2;;
         -x) clear=1; shift 1;;
         -f) cfg_file="$2"; shift 2;;
+        -p) profile="$2"; shift 2;;
         *) argument=$1; shift 1;;
     esac
 done
@@ -48,6 +49,11 @@ if [ -z "$session_name" ]; then
     session_name=${def_session_name:-aws_sudo}
 fi
 
+# if no source profile was provided, try to find a default
+if [ -z "$profile" ]; then
+    profile=$(grep "^default profile" $cfg_file | awk '{print $3}')
+fi
+
 # verify that a valid role arn was found or provided; awscli gives
 # terrible error messages if you try to assume some non-arn junk
 if ! [[ "$role" =~ arn:aws:iam::[0-9]{12}:role/ ]]; then
@@ -55,7 +61,8 @@ if ! [[ "$role" =~ arn:aws:iam::[0-9]{12}:role/ ]]; then
     exit 1
 fi
 
-response=$(aws sts assume-role --output text \
+response=$(aws ${profile:+--profile $profile} \
+               sts assume-role --output text \
                --role-arn "$role" \
                --role-session-name="$session_name" \
                --query Credentials)
