@@ -7,6 +7,7 @@ session_name=aws_sudo
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -n) session_name="$2"; shift 2;;
+        -c) command="$2"; shift 2;;
         -x) clear=1; shift 1;;
         *) ROLE_TO_ASSUME=$1; shift 1;;
     esac
@@ -23,8 +24,15 @@ response=$(aws sts assume-role --output text \
                --role-session-name="$session_name" \
                --query Credentials)
 
-echo export \
-     AWS_ACCESS_KEY_ID=$(echo $response | awk '{print $1}') \
-     AWS_SECRET_ACCESS_KEY=$(echo $response | awk '{print $3}') \
-     AWS_SESSION_TOKEN=$(echo $response | awk '{print $4}')
-
+if [ -n "$command" ]; then
+    env -i \
+        AWS_ACCESS_KEY_ID=$(echo $response | awk '{print $1}') \
+        AWS_SECRET_ACCESS_KEY=$(echo $response | awk '{print $3}') \
+        AWS_SESSION_TOKEN=$(echo $response | awk '{print $4}') \
+        sh -c "$command"
+else
+    echo export \
+         AWS_ACCESS_KEY_ID=$(echo $response | awk '{print $1}') \
+         AWS_SECRET_ACCESS_KEY=$(echo $response | awk '{print $3}') \
+         AWS_SESSION_TOKEN=$(echo $response | awk '{print $4}')
+fi
