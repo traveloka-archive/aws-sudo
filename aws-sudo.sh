@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
 set -e
-ROLE_TO_ASSUME=$1
 
-if [ "$ROLE_TO_ASSUME" == "clear" ]
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -x) clear=1; shift 1;;
+        *) ROLE_TO_ASSUME=$1; shift 1;;
+    esac
+done
+
+if [ "$ROLE_TO_ASSUME" = "clear" -o "$clear" = "1" ]
 then
 	echo "unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SECURITY_TOKEN AWS_SESSION_TOKEN"
 	exit
