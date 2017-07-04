@@ -15,7 +15,7 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-if [ "$argument" = "clear" -o "$clear" = "1" ]
+if [[ "$argument" = "clear" || "$clear" = "1" ]]
 then
 	echo "unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SECURITY_TOKEN AWS_SESSION_TOKEN"
 	exit
