@@ -3,7 +3,6 @@
 set -e
 
 cfg_file="$HOME/.aws-sudo"
-session_name=aws_sudo
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -41,6 +40,12 @@ if [[ -z "$role" && "$argument" =~ ^[0-9]{12}$ ]]; then
        if [ -n "$def_role_name" ]; then
            role="arn:aws:iam::${argument}:role/${def_role_name}"
        fi
+fi
+
+# if no session name was provided, try to find a default
+if [ -z "$session_name" ]; then
+    def_session_name=$(grep "^default session_name" $cfg_file | awk '{print $3}')
+    session_name=${def_session_name:-aws_sudo}
 fi
 
 # verify that a valid role arn was found or provided; awscli gives
