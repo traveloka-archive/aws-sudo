@@ -98,7 +98,7 @@ if [ -n "$command" ]; then
         AWS_ACCESS_KEY_ID=$(echo $response | awk '{print $1}') \
         AWS_SECRET_ACCESS_KEY=$(echo $response | awk '{print $3}') \
         AWS_SESSION_TOKEN=$(echo $response | awk '{print $4}') \
-        sh -c "$command"
+        bash -c "$command"
 else
     echo export \
          AWS_ACCESS_KEY_ID=$(echo $response | awk '{print $1}') \
