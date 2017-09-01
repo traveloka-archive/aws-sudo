@@ -94,7 +94,7 @@ response=$(aws ${profile:+--profile $profile} \
                --query Credentials)
 
 if [ -n "$command" ]; then
-    env -i \
+    env \
         AWS_ACCESS_KEY_ID=$(echo $response | awk '{print $1}') \
         AWS_SECRET_ACCESS_KEY=$(echo $response | awk '{print $3}') \
         AWS_SESSION_TOKEN=$(echo $response | awk '{print $4}') \
