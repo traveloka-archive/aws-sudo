@@ -5,6 +5,8 @@ set -e
 # setup default values
 cfg_file="$HOME/.aws-sudo"
 
+duration=43200
+
 # parse command line
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -91,6 +93,7 @@ response=$(aws ${profile:+--profile $profile} \
                sts assume-role --output text \
                --role-arn "$role" \
                --role-session-name="$session_name" \
+               --duration-seconds=$duration
                --query Credentials)
 
 if [ -n "$command" ]; then
