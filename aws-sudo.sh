@@ -15,6 +15,7 @@ while [ "$#" -gt 0 ]; do
         -x) clear=1; shift 1;;
         -f) cfg_file="$2"; shift 2;;
         -p) profile="$2"; shift 2;;
+        -d) duration="$2"; shift 2;;
         -h)
             cat 1>&2 <<EOF
 $(basename "$0") [-n sess_name] [-c command] [-x] [-f cfg_file] [-p profile] argument
@@ -28,6 +29,7 @@ optional args:
   -x		Generate command to clean modified environment vars
   -f cfg_file	Override config file for defaults and aliases
   -p profile	Use a non-default AWS profile when calling STS
+  -d duration   Session duration 12 hours default
 
 positional args:
   argument:	Must be one of:
@@ -93,7 +95,7 @@ response=$(aws ${profile:+--profile $profile} \
                sts assume-role --output text \
                --role-arn "$role" \
                --role-session-name="$session_name" \
-               --duration-seconds=$duration
+               --duration-seconds=$duration \
                --query Credentials)
 
 if [ -n "$command" ]; then
